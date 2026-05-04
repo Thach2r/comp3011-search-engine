@@ -54,9 +54,6 @@ def crawl(start_url):
     while to_visit:
         url = to_visit.pop()
 
-        if url in visited:
-            continue
-
         print(f"Crawling: {url}")
         html = get_page(url)
 
