@@ -5,7 +5,8 @@ from urllib.parse import urljoin, urlparse
 
 POLITENESS_DELAY = 6  # seconds between requests, as required by brief
 
-def get_page(url):
+
+def get_page(url: str) -> str | None:
     """
     Fetch a single page and return its HTML content.
     Returns None if the request fails.
@@ -19,7 +20,7 @@ def get_page(url):
         return None
 
 
-def extract_links(html, base_url):
+def extract_links(html: str, base_url: str) -> set[str]:
     """
     Extract all internal links from a page.
     Only returns links that belong to the same domain as base_url.
@@ -40,14 +41,14 @@ def extract_links(html, base_url):
     return links
 
 
-def crawl(start_url):
+def crawl(start_url: str) -> dict[str, str]:
     """
     Crawl all pages starting from start_url.
     Returns a dict of {url: html_content}.
     Respects the politeness window between requests.
     """
-    visited = {}       # {url: html_content}
-    to_visit = {start_url}
+    visited: dict[str, str] = {}       # {url: html_content}
+    to_visit: set[str] = {start_url}
 
     print(f"Starting crawl from {start_url}")
 

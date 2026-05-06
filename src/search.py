@@ -1,7 +1,19 @@
 import math
+from typing import TypedDict
 
 
-def print_word(index, word):
+class WordStats(TypedDict):
+    """Frequency and position data for one word on one page."""
+
+    count: int
+    positions: list[int]
+
+
+InvertedIndex = dict[str, dict[str, WordStats]]
+SearchResult = tuple[str, float]
+
+
+def print_word(index: InvertedIndex, word: str) -> None:
     """
     Print the inverted index entry for a single word.
     Shows which pages contain the word, with count and positions.
@@ -22,7 +34,7 @@ def print_word(index, word):
         print()
 
 
-def compute_tfidf(word, url, index, total_pages):
+def compute_tfidf(word: str, url: str, index: InvertedIndex, total_pages: int) -> float:
     """
     Compute TF-IDF score for a word in a specific page.
 
@@ -39,12 +51,12 @@ def compute_tfidf(word, url, index, total_pages):
     return tf * idf
 
 
-def find_pages(index, query):
+def find_pages(index: InvertedIndex, query: str) -> list[SearchResult]:
     """
     Find all pages containing ALL words in the query (AND logic).
     Returns results ranked by combined TF-IDF score.
     """
-    words = [w.lower().strip() for w in query.split()]
+    words: list[str] = [w.lower().strip() for w in query.split()]
 
     if not words:
         print("Empty query.")
@@ -57,7 +69,7 @@ def find_pages(index, query):
             return []
 
     # AND logic: only pages that contain ALL words
-    candidate_sets = [set(index[word].keys()) for word in words]
+    candidate_sets: list[set[str]] = [set(index[word].keys()) for word in words]
     matching_pages = candidate_sets[0]
     for s in candidate_sets[1:]:
         matching_pages = matching_pages.intersection(s)
@@ -68,7 +80,7 @@ def find_pages(index, query):
 
     # Rank by TF-IDF
     total_pages = sum(len(entries) for entries in index.values())
-    scored = []
+    scored: list[SearchResult] = []
     for url in matching_pages:
         score = sum(compute_tfidf(word, url, index, total_pages) for word in words)
         scored.append((url, score))

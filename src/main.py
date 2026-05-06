@@ -4,7 +4,8 @@ from src.search import print_word, find_pages
 
 START_URL = "https://quotes.toscrape.com"
 
-def run():
+
+def run() -> None:
     """Main command-line interface loop."""
     print("Search Engine ready. Commands: build | load | print <word> | find <query> | quit")
     

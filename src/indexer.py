@@ -2,11 +2,22 @@ import json
 import os
 import re
 from bs4 import BeautifulSoup
+from typing import TypedDict
+
+
+class WordStats(TypedDict):
+    """Frequency and position data for one word on one page."""
+
+    count: int
+    positions: list[int]
+
+
+InvertedIndex = dict[str, dict[str, WordStats]]
 
 INDEX_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "index.json")
 
 
-def extract_words(html):
+def extract_words(html: str) -> list[str]:
     """
     Extract all words from a page's HTML content.
     Strips HTML tags, lowercases everything, and returns a list of words
@@ -19,7 +30,7 @@ def extract_words(html):
     return words
 
 
-def build_index(pages):
+def build_index(pages: dict[str, str]) -> InvertedIndex:
     """
     Build an inverted index from a dict of {url: html_content}.
 
@@ -33,7 +44,7 @@ def build_index(pages):
         }
     }
     """
-    index = {}
+    index: InvertedIndex = {}
 
     for url, html in pages.items():
         words = extract_words(html)
@@ -51,7 +62,7 @@ def build_index(pages):
     return index
 
 
-def save_index(index):
+def save_index(index: InvertedIndex) -> None:
     """Save the index to a JSON file."""
     os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
@@ -59,7 +70,7 @@ def save_index(index):
     print(f"Index saved to {INDEX_PATH}")
 
 
-def load_index():
+def load_index() -> InvertedIndex | None:
     """
     Load the index from a JSON file.
     Returns None if the file doesn't exist.
@@ -69,6 +80,6 @@ def load_index():
         return None
 
     with open(INDEX_PATH, "r", encoding="utf-8") as f:
-        index = json.load(f)
+        index: InvertedIndex = json.load(f)
     print(f"Index loaded. {len(index)} unique words.")
     return index
