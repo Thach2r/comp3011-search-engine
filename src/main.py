@@ -7,9 +7,10 @@ START_URL = "https://quotes.toscrape.com"
 
 def run() -> None:
     """Main command-line interface loop."""
-    print("Search Engine ready. Commands: build | load | print <word> | find <query> | quit")
+    print("Search Engine ready. Commands: build | load | print <word> | find <query> | history | quit")
     
     index = None
+    search_history: list[str] = []
     page_texts = {}
 
     while True:
@@ -59,9 +60,18 @@ def run() -> None:
                 continue
             query = " ".join(parts[1:])
             find_pages(index, query, page_texts)
+            search_history.append(query)
+
+        elif command == "history":
+            if not search_history:
+                print("No search history yet.")
+            else:
+                print("\nSearch History:")
+                for i, q in enumerate(search_history, 1):
+                    print(f"  {i}. {q}")
 
         else:
-            print(f"Unknown command: '{command}'. Commands: build | load | print <word> | find <query> | quit")
+            print(f"Unknown command: '{command}'. Commands: build | load | print <word> | find <query> | history | quit")
 
 
 if __name__ == "__main__":

@@ -98,6 +98,22 @@ class TestMain:
         captured = capsys.readouterr()
         assert "Goodbye" in captured.out
 
+    def test_history_empty(self, capsys):
+        """history command should show message when no searches yet."""
+        with patch("builtins.input", side_effect=["history", "quit"]):
+            run()
+        captured = capsys.readouterr()
+        assert "No search history" in captured.out
+
+    def test_history_shows_previous_searches(self, capsys):
+        """history command should show previous find queries."""
+        mock_index = {"good": {"http://page1.com": {"count": 1, "positions": [0]}}}
+        with patch("src.main.load_index", return_value=(mock_index, {})):
+            with patch("builtins.input", side_effect=["load", "find good", "history", "quit"]):
+                run()
+        captured = capsys.readouterr()
+        assert "good" in captured.out
+
     def test_main_entrypoint_runs(self, capsys):
         """Running src.main as a script should call run()."""
         with patch("builtins.input", side_effect=["quit"]):
