@@ -97,3 +97,35 @@ python3 -m pytest tests/ --cov=src --cov-report=term-missing
 - `beautifulsoup4` — HTML parsing
 - `pytest` — Test framework
 - `pytest-cov` — Coverage reporting
+
+## Design Decisions & Complexity Analysis
+
+### Data Structure: Nested Dictionary
+
+The inverted index uses a nested dictionary structure:
+
+```python
+{word: {url: {count: int, positions: list[int]}}}
+```
+
+- **Lookup complexity: O(1)** — Python dictionaries use hash tables, so looking up any word is constant time regardless of index size.
+- **Trade-off:** Higher memory usage compared to a database like SQLite, but acceptable for this dataset size (4,570 words, 214 pages). SQLite would reduce memory but increase lookup latency.
+
+### Crawling: Set-based Visited Tracking
+
+Using a `set` for visited URLs ensures O(1) membership checks, preventing duplicate crawls efficiently.
+
+### Search Ranking: TF-IDF
+
+Results are ranked using TF-IDF scoring:
+
+- **TF (Term Frequency):** rewards pages where the query word appears often
+- **IDF (Inverse Document Frequency):** penalises words that appear across many pages, boosting rare/specific terms
+- **Trade-off:** TF-IDF is simpler than BM25 or neural ranking, but performs well for this dataset and is fully explainable.
+
+### Storage: JSON vs SQLite
+
+Index is stored as JSON for simplicity and human-readability.
+
+- **JSON:** fast to load, easy to inspect, no dependencies
+- **SQLite alternative:** lower memory, supports concurrent access, but adds complexity and slower for full-index loads

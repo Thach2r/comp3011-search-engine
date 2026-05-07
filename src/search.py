@@ -70,6 +70,7 @@ def find_pages(index: InvertedIndex, query: str) -> list[SearchResult]:
 
     # AND logic: only pages that contain ALL words
     candidate_sets: list[set[str]] = [set(index[word].keys()) for word in words]
+    # Set intersection for AND logic: O(min(len(s1), len(s2)))
     matching_pages = candidate_sets[0]
     for s in candidate_sets[1:]:
         matching_pages = matching_pages.intersection(s)

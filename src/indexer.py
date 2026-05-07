@@ -50,6 +50,7 @@ def build_index(pages: dict[str, str]) -> InvertedIndex:
         words = extract_words(html)
 
         for position, word in enumerate(words):
+            # O(1) average lookup per word due to dict hash table
             if word not in index:
                 index[word] = {}
 

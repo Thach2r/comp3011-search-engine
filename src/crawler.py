@@ -47,6 +47,7 @@ def crawl(start_url: str) -> dict[str, str]:
     Returns a dict of {url: html_content}.
     Respects the politeness window between requests.
     """
+    # Set ensures O(1) membership check, preventing duplicate crawls
     visited: dict[str, str] = {}       # {url: html_content}
     to_visit: set[str] = {start_url}
 
