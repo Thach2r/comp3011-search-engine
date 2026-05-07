@@ -10,6 +10,7 @@ def run() -> None:
     print("Search Engine ready. Commands: build | load | print <word> | find <query> | quit")
     
     index = None
+    page_texts = {}
 
     while True:
         try:
@@ -31,12 +32,14 @@ def run() -> None:
         elif command == "build":
             print("Building index... this will take several minutes due to politeness window.")
             pages = crawl(START_URL)
-            index = build_index(pages)
-            save_index(index)
+            index, page_texts = build_index(pages)
+            save_index(index, page_texts)
             print(f"Index built with {len(index)} unique words.")
 
         elif command == "load":
-            index = load_index()
+            result = load_index()
+            if result:
+                index, page_texts = result
 
         elif command == "print":
             if len(parts) < 2:
@@ -55,7 +58,7 @@ def run() -> None:
                 print("No index loaded. Run 'build' or 'load' first.")
                 continue
             query = " ".join(parts[1:])
-            find_pages(index, query)
+            find_pages(index, query, page_texts)
 
         else:
             print(f"Unknown command: '{command}'. Commands: build | load | print <word> | find <query> | quit")

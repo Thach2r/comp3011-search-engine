@@ -51,7 +51,26 @@ def compute_tfidf(word: str, url: str, index: InvertedIndex, total_pages: int) -
     return tf * idf
 
 
-def find_pages(index: InvertedIndex, query: str) -> list[SearchResult]:
+def get_snippet(text: str, words: list[str], window: int = 50) -> str:
+    """Return a short preview around the first matching query word."""
+    text_lower = text.lower()
+
+    for word in words:
+        position = text_lower.find(word.lower())
+        if position != -1:
+            start = max(0, position - window)
+            end = min(len(text), position + len(word) + window)
+            snippet = " ".join(text[start:end].split())
+            return f"...{snippet}..."
+
+    return ""
+
+
+def find_pages(
+    index: InvertedIndex,
+    query: str,
+    page_texts: dict[str, str] = {},
+) -> list[SearchResult]:
     """
     Find all pages containing ALL words in the query (AND logic).
     Returns results ranked by combined TF-IDF score.
@@ -93,5 +112,8 @@ def find_pages(index: InvertedIndex, query: str) -> list[SearchResult]:
     for rank, (url, score) in enumerate(scored, 1):
         print(f"  {rank}. {url}")
         print(f"     Score: {score:.4f}")
+        snippet = get_snippet(page_texts.get(url, ""), words)
+        if snippet:
+            print(f'     Preview: "{snippet}"')
 
     return scored

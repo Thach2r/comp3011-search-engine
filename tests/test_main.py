@@ -58,7 +58,7 @@ class TestMain:
     def test_load_command(self, capsys):
         """load command should call load_index."""
         mock_index = {"hello": {}}
-        with patch("src.main.load_index", return_value=mock_index):
+        with patch("src.main.load_index", return_value=(mock_index, {})):
             with patch("builtins.input", side_effect=["load", "quit"]):
                 run()
         captured = capsys.readouterr()
@@ -83,7 +83,7 @@ class TestMain:
     def test_print_with_loaded_index(self, capsys):
         """print command should call print_word when index is loaded."""
         mock_index = {"good": {"http://page1.com": {"count": 1, "positions": [0]}}}
-        with patch("src.main.load_index", return_value=mock_index):
+        with patch("src.main.load_index", return_value=(mock_index, {})):
             with patch("builtins.input", side_effect=["load", "print good", "quit"]):
                 run()
         captured = capsys.readouterr()
@@ -92,7 +92,7 @@ class TestMain:
     def test_find_with_loaded_index(self, capsys):
         """find command should call find_pages when index is loaded."""
         mock_index = {"good": {"http://page1.com": {"count": 1, "positions": [0]}}}
-        with patch("src.main.load_index", return_value=mock_index):
+        with patch("src.main.load_index", return_value=(mock_index, {})):
             with patch("builtins.input", side_effect=["load", "find good", "quit"]):
                 run()
         captured = capsys.readouterr()

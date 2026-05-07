@@ -2,7 +2,7 @@ import json
 import os
 import re
 from bs4 import BeautifulSoup
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 
 class WordStats(TypedDict):
@@ -15,6 +15,7 @@ class WordStats(TypedDict):
 InvertedIndex = dict[str, dict[str, WordStats]]
 
 INDEX_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "index.json")
+PAGES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "pages.json")
 
 
 def extract_words(html: str) -> list[str]:
@@ -30,7 +31,13 @@ def extract_words(html: str) -> list[str]:
     return words
 
 
-def build_index(pages: dict[str, str]) -> InvertedIndex:
+def extract_text(html: str) -> str:
+    """Extract clean plain text from HTML for snippet generation."""
+    soup = BeautifulSoup(html, "html.parser")
+    return soup.get_text(separator=" ").strip()
+
+
+def build_index(pages: dict[str, str]) -> tuple[InvertedIndex, dict[str, str]]:
     """
     Build an inverted index from a dict of {url: html_content}.
 
@@ -45,8 +52,10 @@ def build_index(pages: dict[str, str]) -> InvertedIndex:
     }
     """
     index: InvertedIndex = {}
+    page_texts: dict[str, str] = {}
 
     for url, html in pages.items():
+        page_texts[url] = extract_text(html)
         words = extract_words(html)
 
         for position, word in enumerate(words):
@@ -60,27 +69,31 @@ def build_index(pages: dict[str, str]) -> InvertedIndex:
             index[word][url]["count"] += 1
             index[word][url]["positions"].append(position)
 
-    return index
+    return index, page_texts
 
 
-def save_index(index: InvertedIndex) -> None:
+def save_index(index: InvertedIndex, page_texts: dict[str, str]) -> None:
     """Save the index to a JSON file."""
     os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         json.dump(index, f, indent=2)
+    with open(PAGES_PATH, "w", encoding="utf-8") as f:
+        json.dump(page_texts, f, indent=2)
     print(f"Index saved to {INDEX_PATH}")
 
 
-def load_index() -> InvertedIndex | None:
+def load_index() -> Optional[tuple[InvertedIndex, dict[str, str]]]:
     """
     Load the index from a JSON file.
     Returns None if the file doesn't exist.
     """
-    if not os.path.exists(INDEX_PATH):
+    if not os.path.exists(INDEX_PATH) or not os.path.exists(PAGES_PATH):
         print("No index found. Please run 'build' first.")
         return None
 
     with open(INDEX_PATH, "r", encoding="utf-8") as f:
         index: InvertedIndex = json.load(f)
+    with open(PAGES_PATH, "r", encoding="utf-8") as f:
+        page_texts: dict[str, str] = json.load(f)
     print(f"Index loaded. {len(index)} unique words.")
-    return index
+    return index, page_texts
