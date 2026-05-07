@@ -9,6 +9,7 @@ A command-line search engine that crawls [quotes.toscrape.com](https://quotes.to
 - Supports single and multi-word search queries (AND logic)
 - Ranks results using TF-IDF scoring
 - Saves and loads index from disk
+- Displays snippet preview showing context around matching words
 
 ## Project Structure
 
@@ -58,7 +59,7 @@ python3 -m src.main
 | `build` | Crawl website and build index | `> build` |
 | `load` | Load existing index from disk | `> load` |
 | `print <word>` | Show index entry for a word | `> print good` |
-| `find <query>` | Find pages containing all query words | `> find good friends` |
+| `find <query>` | Find pages containing all query words, with snippet preview | `> find good friends` |
 | `quit` | Exit the program | `> quit` |
 
 ### Example Session
